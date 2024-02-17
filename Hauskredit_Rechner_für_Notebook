@@ -5,7 +5,6 @@ from ipywidgets import interactive, FloatSlider, SelectionSlider
 import matplotlib.pyplot as plt
 import numpy as np
 import panel as pn
-%matplotlib widget
 #str_format = pn.widgets.FloatSlider(name='Distance', format='1[.]00')
 Loan=input("Do you want to specify a Loan amount?:")
 ir=input("Do you want to specify an interest rate?:")
