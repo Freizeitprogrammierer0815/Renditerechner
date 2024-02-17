@@ -1,0 +1,103 @@
+#Rechner fuer Rente
+%matplotlib ipympl
+from bokeh.models.formatters import PrintfTickFormatter
+from ipywidgets import interactive, FloatSlider, SelectionSlider
+import matplotlib.pyplot as plt
+import numpy as np
+import panel as pn
+
+#Input part manuell? schreibe irgendwas mit mehr als zwei Zeichen für manuelle Anpassung als anfangsparameter
+Change=input("Write something if you want to adjust manually:")
+if len(Change)>1:
+    Start_c=input("Do you want the start capital?:")
+    payout_yr=input("How long until start of payout?:")
+    rr=input("How much does it make p.a.?:")
+    inf=input("Is inflation different from 2.5%?:")
+    monthly1=input("How much is invested monthly?:")
+    payrate_r=input("Entnahmehöhe (3% safe und basis)?:")
+try :
+    Start_cap=float(Start_c)
+except :
+    Start_cap=80000
+try :
+    payout_year=float(payout_yr)
+except :
+    payout_year=30
+try :
+    rendite=float(rr)
+except :
+    rendite=0.088
+try :
+    monthly=float(monthly1)
+except :
+    monthly=2000
+try :
+    payoutrate=float(pay_r)
+except :
+    payoutrate=0.03
+try :
+    inflat=float(inf)
+except :
+    inflat=0.0191
+einzahlungsstopp=payout_year*1
+#Widgets für anpassung
+Interest_on_invest_widget = FloatSlider(min=0.01, max=0.2, step=0.002,value=rendite, readout_format=".2%", continuous_update=True)
+Start_capital_widget = FloatSlider(min=0, max=200000, step=1000,value=Start_cap, readout_format='.0f', continuous_update=True)#
+Monthly_invest_widget = FloatSlider(min=50, max=3000, step=50,value=monthly, readout_format='.0f', continuous_update=True)#
+payoutrate_widget= FloatSlider(min=0.01, max=0.1, step=0.001,value=payoutrate, readout_format='.1%', continuous_update=True)#
+years_til_payout_widget = FloatSlider(min=1, max=60, step=1,value=payout_year, readout_format='.0f', continuous_update=True)#
+inflation_widget = FloatSlider(min=0.00, max=0.1, step=0.0001,value=inflat, readout_format='.2%', continuous_update=True)#
+einzahlungsstopp_widget = FloatSlider(min=1, max=60, step=1,value=payout_year, readout_format='.0f', continuous_update=True)#
+rentenjahre_widget = FloatSlider(min=0, max=60, step=1,value=0, readout_format='.0f', continuous_update=True)#
+
+#funktion für berechnung berechnung erfolgt jährlich mit anteiliger Rendite zum Jahresbetrag
+def f(Interest_on_invest,Start_capital,Monthly_invest,years_til_payout,inflation,payoutrate,einzahlungsstopp,rentenjahre):
+    fig, ax = plt.subplots(figsize=(6,4))
+    
+    i=0
+    P_k=(Interest_on_invest+1)
+    k=Start_capital
+    kkk=Start_capital*1
+    i=0
+    ii=[]
+    A_0=Monthly_invest*12
+    kkkk=[]
+    kk=[]
+    #einzahlungszeitraum
+    while i<years_til_payout:
+        if i<einzahlungsstopp:
+            k=(k*(P_k-inflation)+A_0*((P_k-inflation-1)/2+1))
+        else:
+            k=(k*(P_k-inflation))
+
+        kkk=(kkk*(P_k-inflation))
+
+        kk.append(k)
+        kkkk.append(kkk)
+        ii.append(i)
+        i=i+1
+    payout_start=k*1
+    kkk_payout_start=kkk*1
+    #auszahlungszeitraum
+    while i<years_til_payout+rentenjahre:
+        k=(k-payout_start*payoutrate)*(1+Interest_on_invest-inflation)
+        kk.append(k)
+        ii.append(i)
+        kkk=(kkk-kkk_payout_start*payoutrate)*(1-payoutrate+Interest_on_invest-inflation)
+        kkkk.append(kkk)
+        i=i+1
+    x = np.linspace(0, 20, num=len(kk))
+    year_adjusted=np.add(ii,0)
+    ax.plot(year_adjusted, kk ,label="Monthly invests and initial")
+    ax.plot(year_adjusted, kkkk ,label="Only initial invest")
+    ax.set_ylim(-10000, max(kk)+20000)
+    plt.grid()
+    plt.plot([year_adjusted[0],max(year_adjusted)],[0,0],c="black",linewidth=2)
+    plt.title("Monthly 3% payout after "+str(round(years_til_payout,1))+" years after tax inflationsbereinigt:"+str(round(((payout_start*(payoutrate))*0.818/12))))
+    plt.legend()
+    plt.show()
+
+interactive_plot = interactive(f, Interest_on_invest=Interest_on_invest_widget,Start_capital=Start_capital_widget,Monthly_invest=Monthly_invest_widget,years_til_payout=years_til_payout_widget,inflation=inflation_widget,payoutrate=payoutrate_widget,einzahlungsstopp=einzahlungsstopp_widget,rentenjahre=rentenjahre_widget)#, b=b_widget)
+print("MSCI World Performance 2005-2024 total 8.86% p.a. or in total 386.3% ")
+print("Inflation Germany 2005-2024 total 1.91% p.a. or in total 43% ")
+interactive_plot 
