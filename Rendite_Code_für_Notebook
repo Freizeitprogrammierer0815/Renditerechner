@@ -1,5 +1,5 @@
 #Rechner fuer Rente
-%matplotlib ipympl
+#%matplotlib ipympl
 from bokeh.models.formatters import PrintfTickFormatter
 from ipywidgets import interactive, FloatSlider, SelectionSlider
 import matplotlib.pyplot as plt
@@ -58,6 +58,9 @@ def f(Interest_on_invest,Start_capital,Monthly_invest,years_til_payout,inflation
     P_k=(Interest_on_invest+1)
     k=Start_capital
     kkk=Start_capital*1
+    pure=Start_capital*1
+    vorabpauschale=0.02*.7
+    vorabsteuer=0
     i=0
     ii=[]
     A_0=Monthly_invest*12
@@ -67,6 +70,8 @@ def f(Interest_on_invest,Start_capital,Monthly_invest,years_til_payout,inflation
     while i<years_til_payout:
         if i<einzahlungsstopp:
             k=(k*(P_k-inflation)+A_0*((P_k-inflation-1)/2+1))
+            pure=(pure+A_0)*(1-inflation)
+            vorabsteuer=vorabsteuer+(k-pure)*vorabpauschale
         else:
             k=(k*(P_k-inflation))
 
@@ -93,7 +98,7 @@ def f(Interest_on_invest,Start_capital,Monthly_invest,years_til_payout,inflation
     ax.set_ylim(-10000, max(kk)+20000)
     plt.grid()
     plt.plot([year_adjusted[0],max(year_adjusted)],[0,0],c="black",linewidth=2)
-    plt.title("Monthly 3% payout after "+str(round(years_til_payout,1))+" years after tax inflationsbereinigt:"+str(round(((payout_start*(payoutrate))*0.818/12))))
+    plt.title("Monthly payout after "+str(round(years_til_payout,1))+" yrs after tax inflationsbereinigt:"+str(round(((payout_start*(payoutrate))*(1-(1-0.818)*(1-pure/payout_start))/12)))+",vorabsteuer bezahlt 2% p.a. :"+str(round(((payout_start*(payoutrate))*(1-(1-0.818)*(1-pure/payout_start)*(1-vorabsteuer/payout_start))/12))))
     plt.legend()
     plt.show()
 
