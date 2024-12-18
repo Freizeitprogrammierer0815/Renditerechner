@@ -9,4 +9,7 @@ matplotlib
 
 
 Bei ausführung der beiden Rechner kann immer manuell ein Input verwendet werden. Bei keiner Eingabe erfolgt die Wahl eines automatischen Wertes.
-Dannach ist per slider eine manuelle Anpassung einzelner Werte möglich
+Dannach ist per slider eine manuelle Anpassung einzelner Werte möglich.
+
+
+Es gibt ein .py file zur Ausführung one Jupyternotebook.
